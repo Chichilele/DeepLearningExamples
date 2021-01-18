@@ -108,7 +108,7 @@ def make_parser():
     parser.add_argument('--num-workers', type=int, default=4)
     parser.add_argument('--amp', action='store_true',
                         help='Whether to enable AMP ops. When false, uses TF32 on A100 and FP32 on V100 GPUS.')
-    parser.add_argument('--json-summary', type=str, default=None,
+    parser.add_argument('--json-summary', type=str, default='summary.json',
                         help='If provided, the json summary will be written to'
                              'the specified file.')
 
