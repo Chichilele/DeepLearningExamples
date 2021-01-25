@@ -156,7 +156,7 @@ def train(train_loop_func, logger, args):
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
 
-    ssd300 = SSD300(backbone=ResNet(args.backbone, args.backbone_path), label_num=1)
+    ssd300 = SSD300(backbone=ResNet(args.backbone, args.backbone_path), label_num=2)
     args.learning_rate = args.learning_rate * args.N_gpu * (args.batch_size / 32)
     start_epoch = 0
     iteration = 0
