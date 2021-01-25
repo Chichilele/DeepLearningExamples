@@ -23,7 +23,7 @@ from src.coco import COCO
 #DALI import
 from src.coco_pipeline import COCOPipeline, DALICOCOIterator
 
-def get_train_loader(args, local_seed):
+def get_train_loader(args, local_seed, len_dataset=118287):
     train_annotate = os.path.join(args.data, "annotations/instances_train2017.json")
     train_coco_root = os.path.join(args.data, "train2017")
 
@@ -33,7 +33,7 @@ def get_train_loader(args, local_seed):
                     pad_output=False, seed=local_seed)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
-    train_loader = DALICOCOIterator(train_pipe, 118287 / args.N_gpu)
+    train_loader = DALICOCOIterator(train_pipe, len_dataset / args.N_gpu)
     return train_loader
 
 
