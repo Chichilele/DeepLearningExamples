@@ -151,7 +151,7 @@ def train(train_loop_func, logger, args):
     encoder = Encoder(dboxes)
     cocoGt = get_coco_ground_truth(args)
 
-    train_loader = get_train_loader(args, args.seed - 2**31, len_dataset=422)
+    train_loader = get_train_loader(args, args.seed - 2**31, len_dataset=5002)
 
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
