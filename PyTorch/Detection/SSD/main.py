@@ -20,8 +20,8 @@ import numpy as np
 from torch.optim.lr_scheduler import MultiStepLR
 import torch.utils.data.distributed
 
-from src.model import SSD300, ResNet, Loss
-from src.utils import dboxes300_coco, Encoder
+from src.model import SSD300, SSD512, ResNet, Loss
+from src.utils import dboxes300_coco, dboxes512_coco, Encoder
 from src.logger import Logger, BenchLogger
 from src.evaluate import evaluate
 from src.train import train_loop, tencent_trick, load_checkpoint, benchmark_train_loop, benchmark_inference_loop
@@ -147,7 +147,7 @@ def train(train_loop_func, logger, args):
 
 
     # Setup data, defaults
-    dboxes = dboxes300_coco()
+    dboxes = dboxes512_coco()
     encoder = Encoder(dboxes)
     cocoGt = get_coco_ground_truth(args)
 
@@ -156,28 +156,28 @@ def train(train_loop_func, logger, args):
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
 
-    ssd300 = SSD300(backbone=ResNet(args.backbone, args.backbone_path), label_num=2)
+    ssd512 = SSD512(backbone=ResNet(args.backbone, args.backbone_path), label_num=2)
     args.learning_rate = args.learning_rate * args.N_gpu * (args.batch_size / 32)
     start_epoch = 0
     iteration = 0
     loss_func = Loss(dboxes)
 
     if use_cuda:
-        ssd300.cuda()
+        ssd512.cuda()
         loss_func.cuda()
 
-    optimizer = torch.optim.SGD(tencent_trick(ssd300), lr=args.learning_rate,
+    optimizer = torch.optim.SGD(tencent_trick(ssd512), lr=args.learning_rate,
                                     momentum=args.momentum, weight_decay=args.weight_decay)
     scheduler = MultiStepLR(optimizer=optimizer, milestones=args.multistep, gamma=0.1)
     if args.amp:
-        ssd300, optimizer = amp.initialize(ssd300, optimizer, opt_level='O2')
+        ssd512, optimizer = amp.initialize(ssd512, optimizer, opt_level='O2')
 
     if args.distributed:
-        ssd300 = DDP(ssd300)
+        ssd512 = DDP(ssd512)
 
     if args.checkpoint is not None:
         if os.path.isfile(args.checkpoint):
-            load_checkpoint(ssd300.module if args.distributed else ssd300, args.checkpoint)
+            load_checkpoint(ssd512.module if args.distributed else ssd512, args.checkpoint)
             checkpoint = torch.load(args.checkpoint,
                                     map_location=lambda storage, loc: storage.cuda(torch.cuda.current_device()))
             start_epoch = checkpoint['epoch']
@@ -193,7 +193,7 @@ def train(train_loop_func, logger, args):
     total_time = 0
 
     if args.mode == 'evaluation':
-        acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+        acc = evaluate(ssd512, val_dataloader, cocoGt, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
 
@@ -203,7 +203,7 @@ def train(train_loop_func, logger, args):
     for epoch in range(start_epoch, args.epochs):
         start_epoch_time = time.time()
         scheduler.step()
-        iteration = train_loop_func(ssd300, loss_func, epoch, optimizer, train_loader, val_dataloader, encoder, iteration,
+        iteration = train_loop_func(ssd512, loss_func, epoch, optimizer, train_loader, val_dataloader, encoder, iteration,
                                     logger, args, mean, std)
         end_epoch_time = time.time() - start_epoch_time
         total_time += end_epoch_time
@@ -212,7 +212,7 @@ def train(train_loop_func, logger, args):
             logger.update_epoch_time(epoch, end_epoch_time)
 
         if epoch in args.evaluation:
-            acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+            acc = evaluate(ssd512, val_dataloader, cocoGt, encoder, inv_map, args)
 
             if args.local_rank == 0:
                 logger.update_epoch(epoch, acc)
@@ -225,9 +225,9 @@ def train(train_loop_func, logger, args):
                    'scheduler': scheduler.state_dict(),
                    'label_map': val_dataset.label_info}
             if args.distributed:
-                obj['model'] = ssd300.module.state_dict()
+                obj['model'] = ssd512.module.state_dict()
             else:
-                obj['model'] = ssd300.state_dict()
+                obj['model'] = ssd512.state_dict()
             save_path = os.path.join(args.save, f'epoch_{epoch}.pt')
             torch.save(obj, save_path)
             logger.log('model path', save_path)
