@@ -593,3 +593,44 @@ def draw_patches(img, bboxes, labels, order="xywh", label_map={}):
         ax.text(cx-0.5*w, cy-0.5*h, label, ha="center", va="center", size=15, bbox=bbox_props)
     plt.show()
 
+
+
+def get_bbox_pred(model, img):
+    """ get bounding box predictions for a specific image"""
+    dboxes = dboxes300_coco()
+    encoder = Encoder(dboxes)
+
+    wtot, htot = img.size
+
+    tsfm = transforms.Compose([
+        transforms.Resize((300, 300)),
+        transforms.ToTensor(),
+    ])
+    inp = tsfm(img).cuda().unsqueeze(0)
+
+
+    # Handle the batch of predictions produced
+    # This is slow, but consistent with old implementation.
+    bboxes = []
+    with torch.no_grad():
+        # Get predictions
+        ploc, plabel = model(inp)
+        ploc, plabel = ploc.float(), plabel.float()
+
+        for idx in range(ploc.shape[0]):
+            # ease-of-use for specific predictions
+            ploc_i = ploc[idx, :, :].unsqueeze(0)
+            plabel_i = plabel[idx, :, :].unsqueeze(0)
+
+            result = encoder.decode_batch(ploc_i, plabel_i, 0.50, 200)[0]
+
+            loc, label, prob = [r.cpu().numpy() for r in result]
+            for loc_, label_, prob_ in zip(loc, label, prob):
+                label = 1
+                xmin, ymin = loc_[0] * wtot, loc_[1] * htot
+                w, h = (loc_[2] - loc_[0]) * wtot, (loc_[3] - loc_[1]) * htot
+                score = prob_
+                
+                bboxes.append((label, xmin, ymin, w, h, score))
+    
+    return bboxes
