@@ -294,7 +294,7 @@ def dboxes512_coco():
     feat_size = [64, 32, 16, 8, 4, 2, 1]
     steps = [8, 16, 32, 64, 100, 300, 512]
     # use the scales here: https://github.com/amdegroot/ssd.pytorch/blob/master/data/config.py
-    scales = [21, 45, 99, 153, 207, 261, 315]
+    scales = [20, 51, 132, 213, 294, 375, 457, 538]
     aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2], [2],[2]]
     dboxes = DefaultBoxes(figsize, feat_size, steps, scales, aspect_ratios)
     return dboxes
