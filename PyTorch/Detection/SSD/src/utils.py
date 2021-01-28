@@ -415,7 +415,7 @@ class SSDTransformer(object):
         Flipping
         Jittering
     """
-    def __init__(self, dboxes, size = (300, 300), val=False):
+    def __init__(self, dboxes, size = (512, 512), val=False):
 
         # define vgg16 mean
         self.size = size
@@ -607,13 +607,13 @@ def draw_patches(img, bboxes, labels, order="xywh", label_map={}):
 
 def get_bbox_pred(model, img):
     """ get bounding box predictions for a specific image"""
-    dboxes = dboxes300_coco()
+    dboxes = dboxes512_coco()
     encoder = Encoder(dboxes)
 
     wtot, htot = img.size
 
     tsfm = transforms.Compose([
-        transforms.Resize((300, 300)),
+        transforms.Resize((512, 512)),
         transforms.ToTensor(),
     ])
     inp = tsfm(img).cuda().unsqueeze(0)
