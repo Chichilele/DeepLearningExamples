@@ -50,8 +50,8 @@ def normalize(img, mean=128, std=128):
 
 def prepare_input(img_uri):
     img = load_image(img_uri)
-    img = rescale(img, 300, 300)
-    img = crop_center(img, 300, 300)
+    img = rescale(img, 512, 512)
+    img = crop_center(img, 512, 512)
     img = normalize(img)
 
     return img

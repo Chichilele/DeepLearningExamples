@@ -49,12 +49,12 @@ class COCOPipeline(Pipeline):
         self.crop = ops.SSDRandomCrop(device="cpu", num_attempts=1)
         self.twist = ops.ColorTwist(device="gpu")
 
-        self.resize = ops.Resize(device = "gpu", resize_x = 300, resize_y = 300)
+        self.resize = ops.Resize(device = "gpu", resize_x = 512, resize_y = 512)
 
         output_dtype = types.FLOAT16 if output_fp16 else types.FLOAT
         output_layout = types.NHWC if output_nhwc else types.NCHW
 
-        self.normalize = ops.CropMirrorNormalize(device="gpu", crop=(300, 300),
+        self.normalize = ops.CropMirrorNormalize(device="gpu", crop=(512, 512),
                                                  mean=[0.0, 0.0, 0.0],
                                                  std=[255.0, 255.0, 255.0],
                                                  mirror=0,

@@ -17,7 +17,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 
-from src.utils import dboxes300_coco, COCODetection
+from src.utils import dboxes512_coco, COCODetection
 from src.utils import SSDTransformer
 from src.coco import COCO
 #DALI import
@@ -38,8 +38,8 @@ def get_train_loader(args, local_seed, len_dataset=118287):
 
 
 def get_val_dataset(args):
-    dboxes = dboxes300_coco()
-    val_trans = SSDTransformer(dboxes, (300, 300), val=True)
+    dboxes = dboxes512_coco()
+    val_trans = SSDTransformer(dboxes, (512, 512), val=True)
 
     val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     val_coco_root = os.path.join(args.data, "val2017")
