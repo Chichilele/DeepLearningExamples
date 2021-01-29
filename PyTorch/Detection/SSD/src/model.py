@@ -22,19 +22,19 @@ class ResNet(nn.Module):
         super().__init__()
         if backbone == 'resnet18':
             backbone = resnet18(pretrained=not backbone_path)
-            self.out_channels = [256, 512, 512, 256, 256, 128]
+            self.out_channels = [256, 512, 512, 256, 256, 256, 128]
         elif backbone == 'resnet34':
             backbone = resnet34(pretrained=not backbone_path)
-            self.out_channels = [256, 512, 512, 256, 256, 256]
+            self.out_channels = [256, 512, 512, 256, 256, 256, 256]
         elif backbone == 'resnet50':
             backbone = resnet50(pretrained=not backbone_path)
-            self.out_channels = [1024, 512, 512, 256, 256, 256]
+            self.out_channels = [1024, 512, 512, 256, 256, 256, 256]
         elif backbone == 'resnet101':
             backbone = resnet101(pretrained=not backbone_path)
-            self.out_channels = [1024, 512, 512, 256, 256, 256]
+            self.out_channels = [1024, 512, 512, 256, 256, 256, 256]
         else:  # backbone == 'resnet152':
             backbone = resnet152(pretrained=not backbone_path)
-            self.out_channels = [1024, 512, 512, 256, 256, 256]
+            self.out_channels = [1024, 512, 512, 256, 256, 256, 256]
         if backbone_path:
             backbone.load_state_dict(torch.load(backbone_path))
 
@@ -151,7 +151,7 @@ class SSD512(nn.Module):
 
     def _build_additional_features(self, input_size):
         self.additional_blocks = []
-        for i, (input_size, output_size, channels) in enumerate(zip(input_size[:-1], input_size[1:], [256, 256, 128, 128, 128])):
+        for i, (input_size, output_size, channels) in enumerate(zip(input_size[:-1], input_size[1:], [256, 256, 128, 128, 128, 128])):
             if i < 3:
                 layer = nn.Sequential(
                     nn.Conv2d(input_size, channels, kernel_size=1, bias=False),
