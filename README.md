@@ -1,10 +1,10 @@
-# COPY from Nvidia Docker Image for SSD300
+# SSD512 v1.1 For PyTorch
 
-This repo is meant to adapt the SSD300 NVC to SSD512 
+This repository provides a script and recipe to train the SSD512 model to achieve state of the art accuracy, and is tested and maintained by NVIDIA.
 
-## SSD512 v1.1 For PyTorch
+## Copy from Nvidia Docker Image for SSD300
 
-This repository provides a script and recipe to train the SSD300 v1.1 model to achieve state of the art accuracy, and is tested and maintained by NVIDIA.
+This repo is a adaptation of the SSD300 NVC. 
 
 ## Table Of Contents
 - [Model overview](#model-overview)
