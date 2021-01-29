@@ -268,6 +268,7 @@ if __name__ == "__main__":
 
     torch.backends.cudnn.benchmark = True
 
+    args.json_summary = args.json_summary if len(args.json_summary)>0 else None
     # write json only on the main thread
     args.json_summary = args.json_summary if args.local_rank == 0 else None
 
