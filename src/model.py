@@ -151,7 +151,9 @@ class SSD512(nn.Module):
 
     def _build_additional_features(self, input_size):
         self.additional_blocks = []
-        for i, (input_size, output_size, channels) in enumerate(zip(input_size[:-1], input_size[1:], [256, 256, 128, 128, 128, 128])):
+        ## conv12_2 depths
+        _i, c, o = input_size[-2], 128, input_size[-1]
+        for i, (input_size, output_size, channels) in enumerate(zip(input_size[:-2], input_size[1:-1], [256, 256, 128, 128, 128])):
             ## 3 layers with padding + stride 2 
             if i < 4:
                 layer = nn.Sequential(
@@ -175,6 +177,16 @@ class SSD512(nn.Module):
 
             self.additional_blocks.append(layer)
 
+        ## adapting conv12_2 layer (3x3 filter doesn't match 2x2 img size)
+        self.conv12_2 = layer = nn.Sequential(
+                    nn.Conv2d(_i, c, kernel_size=1, bias=False),
+                    nn.BatchNorm2d(c),
+                    nn.ReLU(inplace=True),
+                    nn.Conv2d(c, o, kernel_size=2, bias=False),
+                    nn.BatchNorm2d(o),
+                    nn.ReLU(inplace=True),
+        )
+                        
         self.additional_blocks = nn.ModuleList(self.additional_blocks)
 
     def _init_weights(self):
@@ -201,7 +213,9 @@ class SSD512(nn.Module):
             x = l(x)
             detection_feed.append(x)
 
-        # Feature Map 38x38x4, 19x19x6, 10x10x6, 5x5x6, 3x3x4, 1x1x4
+        x = self.conv12_2(x)
+        detection_feed.append(x)
+        # Feature Map 64x64x4, 32x32x6, 16x16x6, 8x8x6, 4x4x6, 2x2x4, 1x1x4
         locs, confs = self.bbox_view(detection_feed, self.loc, self.conf)
 
         # For SSD 512, shall return nbatch x 24564 x {nlabels, nlocs} results
