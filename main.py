@@ -228,7 +228,7 @@ def train(train_loop_func, logger, args):
                 obj['model'] = ssd512.module.state_dict()
             else:
                 obj['model'] = ssd512.state_dict()
-            save_path = os.path.join(args.save, f'epoch_{epoch}.pt')
+            save_path = os.path.join(args.save, f'epoch_{epoch:03}.pt')
             torch.save(obj, save_path)
             logger.log('model path', save_path)
         train_loader.reset()
