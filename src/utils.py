@@ -291,7 +291,7 @@ def dboxes300_coco():
 
 def dboxes512_coco():
     figsize = 512
-    feat_size = [64, 32, 16, 8, 6, 4, 2]
+    feat_size = [64, 32, 16, 8, 4, 2, 1]
     steps = [8, 16, 32, 64, 100, 300, 512]
     # use the scales here: https://github.com/amdegroot/ssd.pytorch/blob/master/data/config.py
     scales = [20, 51, 132, 213, 294, 375, 457, 538]
