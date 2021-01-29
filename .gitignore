@@ -1,5 +1,7 @@
 repos.cfg
 repos_init.cfg
 nvtool*
- .vscode
- .ipynb_checkpoints
+.vscode
+.ipynb_checkpoints
+__pycache__/
+*.json
