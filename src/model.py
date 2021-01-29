@@ -152,7 +152,8 @@ class SSD512(nn.Module):
     def _build_additional_features(self, input_size):
         self.additional_blocks = []
         for i, (input_size, output_size, channels) in enumerate(zip(input_size[:-1], input_size[1:], [256, 256, 128, 128, 128, 128])):
-            if i < 3:
+            ## 3 layers with padding + stride 2 
+            if i < 4:
                 layer = nn.Sequential(
                     nn.Conv2d(input_size, channels, kernel_size=1, bias=False),
                     nn.BatchNorm2d(channels),
@@ -161,6 +162,7 @@ class SSD512(nn.Module):
                     nn.BatchNorm2d(output_size),
                     nn.ReLU(inplace=True),
                 )
+            ## the rest with no padding + stride 1
             else:
                 layer = nn.Sequential(
                     nn.Conv2d(input_size, channels, kernel_size=1, bias=False),
@@ -202,7 +204,7 @@ class SSD512(nn.Module):
         # Feature Map 38x38x4, 19x19x6, 10x10x6, 5x5x6, 3x3x4, 1x1x4
         locs, confs = self.bbox_view(detection_feed, self.loc, self.conf)
 
-        # For SSD 300, shall return nbatch x 8732 x {nlabels, nlocs} results
+        # For SSD 512, shall return nbatch x 24564 x {nlabels, nlocs} results
         return locs, confs
 
 
